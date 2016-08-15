@@ -1,10 +1,13 @@
 # Metamaya printer
 
-The module defines the `Printer` class that outputs formatted text to
+The module exports the `Printer` class that outputs formatted text to
 any writable stream.
+It has specialized methods for printing text, numbers and line breaks and
+indented blocks.
+
 The printer is customized for pretty-printing metamaya program models.
 
-The module also provides a ready-to-use `printer` object that is directed
+The module also exports a ready-to-use `printer` object that is directed
 to `process.stdout`.
 
 
@@ -50,7 +53,7 @@ var p = new Printer(process.stdout, opts)
 
 ## Printing text
 
-All printing method returns the printer object, so they are chainable.
+All printing methods return the printer object, so they are chainable.
 
 **text(*str*)**
 
@@ -62,7 +65,12 @@ Prints formatted text in *printf* style. The arguments are straightforwardly
 passed to `util.format()`.
 
 
-## Printing models with syntax highlight
+## Printing program models
+
+If the `raw` option is not set (the default), program models are printed with
+metamaya syntax, although the output doesn't necessarily compile.
+If the `raw` option is set, program models are printed using Javascript
+object syntax. Only enumerable properties are printed.
 
 **model(*obj*)**
 
@@ -97,12 +105,12 @@ Prints a key reference.
 
 Prints a number.
 
-## Lines and rules
+## Line breaks and rules
 
 **br()**
 
 Prints a soft line break.
-Consequent calls to `br` will print only one line break.
+Consequent calls to `br` will print a single line break.
 
 **ln(*[str], [indent]*)**
 
@@ -130,11 +138,11 @@ in the current line. Empty lines are not indented.
 
 Decreases indentation depth.
 
-**open(symbol)**
+**open(*symbol*)**
 
 Opens a new block with delimiter `symbol`. Increases indentation depth.
 
-**close(symbol)**
+**close(*symbol*)**
 
 Closes the current new block with delimiter `symbol`. Decreases indentation depth.
 
