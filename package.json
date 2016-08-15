@@ -1,0 +1,26 @@
+{
+  "name": "metamaya-printer",
+  "version": "0.0.0",
+  "description": "Debug printer for metamaya programs",
+  "homepage": "http://metamaya.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/metamaya/metamaya-printer.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Kalman Keri",
+    "email": "kk@metamaya.org"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "colors": "^1.1.2",
+    "metamaya": "0.0.2"
+  },
+  "devDependencies": {
+    "jsdoc": "latest"
+  },
+  "scripts": {
+    "doc": "node_modules/.bin/jsdoc -c .jsdoc.conf"
+  }
+}
