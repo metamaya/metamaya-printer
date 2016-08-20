@@ -1,4 +1,6 @@
+doc/
 notes/
+coverage/
 typings/
 node_modules/
 obj/

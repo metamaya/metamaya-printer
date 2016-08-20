@@ -1,0 +1,14 @@
+{
+  "curly": true,
+  "eqeqeq": true,
+  "esversion": 6,
+  "funcscope": true,
+  "futurehostile": true,
+  "node": true,
+  "notypeof": true,
+  "shadow": true,
+  "singleGroups": true,
+  "strict": true,
+  "undef": true,
+  "unused": true
+}

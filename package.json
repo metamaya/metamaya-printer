@@ -18,9 +18,14 @@
     "metamaya": "0.0.2"
   },
   "devDependencies": {
-    "jsdoc": "latest"
+    "jsdoc": "latest",
+    "jshint": "^2.9.3",
+    "tape": "^4.6.0",
+    "istanbul": "latest"
   },
   "scripts": {
-    "doc": "node_modules/.bin/jsdoc -c .jsdoc.conf"
+    "doc": "node_modules/.bin/jsdoc -c .jsdoc.conf",
+    "test": "jshint lib/index.js lib/modelMap.js test/test.js && node ./test/test.js",
+    "cover": "istanbul cover test/test.js"
   }
 }
