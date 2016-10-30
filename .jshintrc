@@ -1,6 +1,7 @@
 {
   "curly": true,
   "eqeqeq": true,
+  "eqnull": true,
   "esversion": 6,
   "funcscope": true,
   "futurehostile": true,
@@ -9,6 +10,5 @@
   "shadow": true,
   "singleGroups": true,
   "strict": true,
-  "undef": true,
-  "unused": true
+  "undef": true
 }
