@@ -1,266 +1,449 @@
 ﻿"use strict";
 
-const Printer = require("metamaya-printer").Printer;
+const Printer = require("../lib/index").Printer;
+const mm = require("metamaya/lib/implementation");
+const parser = require("metamaya/lib/parser");
 const stream = require('stream');
 const test = require("tape");
 
-test("empty", (t) => {
-  p(opt1);
+let options = {};
+
+let annotOptions = {
+  annotated: true
+};
+
+let colorsOptions = {
+  colors: true
+};
+
+let shortLineOptions = {
+  breakLength: 0,
+  indentSize: 2
+};
+
+test("noformatstr", (t) => {
+  p(options).print();
   t.equal(output, "");
+
+  p(options).print(1);
+  t.equal(output, "1");
+
+  p(options).print(1, 2, 3);
+  t.equal(output, "1 2 3");
+
+  p(options).print(1, "2");
+  t.equal(output, "1 2");
+
+  p(options).print(undefined, null, false, true);
+  t.equal(output, "undefined null false true");
 
   t.end();
 });
 
-
-test("flush", (t) => {
-  p(opt1)._flush();
+test("formatstr", (t) => {
+  p(options).print("");
   t.equal(output, "");
 
-  p(opt1)._flush()._flush();
-  t.equal(output, "");
+  p(options).print("a");
+  t.equal(output, "a");
+
+  p(options).print("a b c");
+  t.equal(output, "a b c");
 
   t.end();
 });
 
-
-test("text", (t) => {
-  p(opt1).text("");
-  t.equal(output, "");
-
-  p(opt1).text("abc");
-  t.equal(output, "abc");
-
-  t.end();
-});
-
-
-test("br", (t) => {
-  p(opt1).br();
-  t.equal(output, "");
-
-  p(opt1).br().br().br();
-  t.equal(output, "");
-
-  p(opt1).text('abc').br();
-  t.equal(output, "abc\n");
-
-  p(opt1).text('abc').br().br();
-  t.equal(output, "abc\n");
-
-  p(opt1).text('abc').br().text('def');
-  t.equal(output, "abc\ndef");
-
-  p(opt1).text('abc').br().text('def').br().br();
-  t.equal(output, "abc\ndef\n");
-
-  t.end();
-});
-
-
-test("ln w/o string", (t) => {
-  p(opt1).ln();
+test("linebreak", (t) => {
+  p(options).print("\n");
   t.equal(output, "\n");
 
-  p(opt1).ln().br();
-  t.equal(output, "\n");
+  p(options).print("\r");
+  t.equal(output, "\r");
 
-  p(opt1).ln().ln();
-  t.equal(output, "\n\n");
+  p(options).print("\r\n");
+  t.equal(output, "\r\n");
 
-  p(opt1).text('abc').ln();
-  t.equal(output, "abc\n");
+  p(options).print("a\n");
+  t.equal(output, "a\n");
 
-  p(opt1).text('abc').ln().ln();
-  t.equal(output, "abc\n\n");
+  p(options).print("a\r");
+  t.equal(output, "a\r");
 
-  t.end();
-});
+  p(options).print("a\r\n");
+  t.equal(output, "a\r\n");
 
+  p(options).print("a b\n c");
+  t.equal(output, "a b\n c");
 
-test("ln w/o string 2", (t) => {
-  p(opt1).text('abc').ln().text('def');
-  t.equal(output, "abc\ndef");
-
-  p(opt1).text('abc').br().ln().text('def');
-  t.equal(output, "abc\n\ndef");
-
-  p(opt1).text('abc').ln().br().text('def');
-  t.equal(output, "abc\ndef");
-
-  p(opt1).text('abc').ln().ln().text('def');
-  t.equal(output, "abc\n\ndef");
+  p(options).print("a b c\n");
+  t.equal(output, "a b c\n");
 
   t.end();
 });
-
-
-test("ln with string", (t) => {
-  p(opt1).ln('ln');
-  t.equal(output, "ln\n");
-
-  p(opt1).ln('ln').br();
-  t.equal(output, "ln\n");
-
-  p(opt1).ln('ln').ln('ln');
-  t.equal(output, "ln\nln\n");
-
-  p(opt1).text('abc').ln('ln');
-  t.equal(output, "abc\nln\n");
-
-  p(opt1).text('abc').ln('ln').ln('ln');
-  t.equal(output, "abc\nln\nln\n");
-
-  t.end();
-});
-
-
-test("ln with string 2", (t) => {
-  p(opt1).text('abc').ln('ln').text('def');
-  t.equal(output, "abc\nln\ndef");
-
-  p(opt1).text('abc').br().ln('ln').text('def');
-  t.equal(output, "abc\nln\ndef");
-
-  p(opt1).text('abc').ln('ln').br().text('def');
-  t.equal(output, "abc\nln\ndef");
-
-  p(opt1).text('abc').ln('ln').ln('ln').text('def');
-  t.equal(output, "abc\nln\nln\ndef");
-
-  t.end();
-});
-
-
-test("format", (t) => {
-  p(opt1).format('');
-  t.equal(output, "");
-
-  p(opt1).format('abc');
-  t.equal(output, "abc");
-
-  // It shouldn't have failed
-  //p(opt1).format('ab%%cd');
-  //t.equal(output, "ab%cd");
-
-  p(opt1).format('ab%dcd', 99);
-  t.equal(output, "ab99cd");
-
-  p(opt1).format('ab%scd', '()');
-  t.equal(output, "ab()cd");
-
-  p(opt1).format('ab%jcd', {});
-  t.equal(output, "ab{}cd");
-
-  t.end();
-});
-
 
 test("rule", (t) => {
-  p(opt1).rule(10, '-');
-  t.equal(output, "----------\n");
+  let prt = p(options).rule();
+  t.equal(output, '-'.repeat(prt.options.breakLength) + "\n");
 
-  p(opt1).text('abc').rule(10, '-');
-  t.equal(output, "abc\n----------\n");
+  p(shortLineOptions).rule();
+  t.equal(output, '-'.repeat(8) + "\n");
 
-  p(opt1).rule(10, '-').rule(10, '-');
-  t.equal(output, "----------\n----------\n");
-
-  p(opt1).rule(10, '-').text('abc').rule(10, '-');
-  t.equal(output, "----------\nabc\n----------\n");
+  prt = p(options).print("...").rule();
+  t.equal(output, "..." + '-'.repeat(prt.options.breakLength - 3) + "\n");
 
   t.end();
 });
 
+test("nopercent_remain", (t) => {
+  p(options).print("", 1, 2);
+  t.equal(output, "1 2");
 
-test("indent", (t) => {
-  p(opt1).indent();
+  p(options).print("a", 1, 2);
+  t.equal(output, "a 1 2");
+
+  t.end();
+});
+
+test("br", (t) => {
+  p(options).br();
   t.equal(output, "");
 
-  p(opt1).unindent();
+  p(options).print("").br();
   t.equal(output, "");
 
-  p(opt1).indent().unindent();
-  t.equal(output, "");
+  p(options).print("a").br();
+  t.equal(output, "a\n");
 
-  p(opt1).indent().br().unindent();
-  t.equal(output, "");
+  p(options).print("a").br().br();
+  t.equal(output, "a\n");
 
-  p(opt1).indent().ln().unindent();
+  t.end();
+});
+
+test("ln", (t) => {
+  p(options).ln();
+  t.equal(output, "\n");
+
+  p(options).print("").ln();
+  t.equal(output, "\n");
+
+  p(options).print("").ln("x");
+  t.equal(output, "x\n");
+
+  p(options).print("a").ln();
+  t.equal(output, "a\n\n");
+
+  p(options).print("a").ln("x");
+  t.equal(output, "a\nx\n");
+
+  p(options).print("a").ln().ln();
+  t.equal(output, "a\n\n\n");
+
+  t.end();
+});
+
+test("brln", (t) => {
+  p(options).br().ln();
+  t.equal(output, "\n");
+
+  p(options).ln().br();
+  t.equal(output, "\n");
+
+  p(options).br().ln().br();
+  t.equal(output, "\n");
+
+  p(options).print("").br().ln();
   t.equal(output, "\n");
 
   t.end();
 });
 
+test("%", (t) => {
+  p(options).print("%");
+  t.equal(output, "%");
 
-test("indent 2", (t) => {
-  p(opt1).indent().unindent().text('abc');
+  p(options).print("%%");
+  t.equal(output, "%");
+
+  p(options).print("%%", 1);
+  t.equal(output, "% 1");
+
+  p(options).print("a%%", 1);
+  t.equal(output, "a% 1");
+
+  t.end();
+});
+
+test("%d", (t) => {
+  p(options).print("%d");
+  t.equal(output, "%d");
+
+  p(options).print("%d", 1);
+  t.equal(output, "1");
+
+  t.end();
+});
+
+test("%s", (t) => {
+  p(options).print("%s");
+  t.equal(output, "%s");
+
+  p(options).print("%s", 1);
+  t.equal(output, "1");
+
+  p(options).print("%s", "abc");
   t.equal(output, "abc");
 
-  p(opt1).indent().text('abc').unindent();
-  t.equal(output, "  abc");
+  t.end();
+});
 
-  p(opt1).indent().text('abc').unindent().text('def');
-  t.equal(output, "  abcdef");
+test("multiple%", (t) => {
+  p(options).print("%s%s");
+  t.equal(output, "%s%s");
 
-  p(opt1).indent().text('abc').unindent().br().text('def');
-  t.equal(output, "  abc\ndef");
+  p(options).print("%d%d");
+  t.equal(output, "%d%d");
 
-  p(opt1).indent().text('abc').br().unindent().text('def');
-  t.equal(output, "  abc\ndef");
+  p(options).print("%s%s", "abc", "def");
+  t.equal(output, "abcdef");
+
+  t.end();
+});
+
+test("multiple%text", (t) => {
+  p(options).print(".%s.%s.");
+  t.equal(output, ".%s.%s.");
+
+  p(options).print(".%d.%d.");
+  t.equal(output, ".%d.%d.");
+
+  p(options).print("...%s...%s...", "abc", "def");
+  t.equal(output, "...abc...def...");
+
+  p(options).print("%s%d", "abc", 123);
+  t.equal(output, "abc123");
+
+  p(options).print("%d%s", 123, "abc");
+  t.equal(output, "123abc");
+
+  p(options).print("...%s...%d...", "abc", 123);
+  t.equal(output, "...abc...123...");
+
+  t.end();
+});
+
+test("%m", (t) => {
+  p(options).print(".%m.");
+  t.equal(output, ".%m.");
+
+  p(options).print("%m", undefined);
+  t.equal(output, "undefined");
+
+  p(options).print("%m", null);
+  t.equal(output, "null");
+
+  p(options).print("%m", 1);
+  t.equal(output, "1");
+
+  p(options).print("%m", "abc");
+  t.equal(output, "\"abc\"");
+
+  p(options).print("%m", Symbol("S"));
+  t.equal(output, "Symbol(S)");
+
+  t.end();
+});
+
+test("%m-array", (t) => {
+  p(options).print("%m", []);
+  t.equal(output, "[]");
+
+  p(options).print("%m", [1]);
+  t.equal(output, "[1]");
+
+  p(options).print("%m", [1, 2, 3]);
+  t.equal(output, "[1, 2, 3]");
+
+  t.end();
+});
+
+test("%m-object", (t) => {
+  p(options).print("%m", {});
+  t.equal(output, "{}");
+
+  p(options).print("%m", { a: 1 });
+  t.equal(output, "{ a = 1; }");
+
+  p(options).print("%m", { a: 1, b: 2, c: 3 });
+  t.equal(output, "{ a = 1; b = 2; c = 3; }");
+
+  t.end();
+});
+
+test("%m-hybrid", (t) => {
+  p(options).print("%m", [1, [], [2], { c: 3 }]);
+  t.equal(output, "[1, [], [2], { c = 3; }]");
+
+  p(options).print("%m", { a: 1, b: { c: 3 }, d: [1] });
+  t.equal(output, "{ a = 1; b = { c = 3; }; d = [1]; }");
+
+  t.end();
+});
+
+test("%m-circular", (t) => {
+  let o = {};
+  o.a = o;
+  p(options).print("%m", o);
+  t.equal(output, "{ a = @circular[object]; }");
+
+  let a = [];
+  a[0] = a;
+  p(options).print("%m", a);
+  t.equal(output, "[@circular[array]]");
+
+  t.end();
+});
+
+test("%m-constructor", (t) => {
+  function Custom() {
+    this.a = 1;
+  }
+  let o = new Custom();
+  p(options).print("%m", o);
+  t.equal(output, "Custom { a = 1; }");
+
+  t.end();
+});
+
+test("short-line", (t) => {
+  p(shortLineOptions).print("a").br().print("b");
+  t.equal(output, "a\nb");
+
+  p(shortLineOptions).print("%m", []);
+  t.equal(output, "[]");
+
+  p(shortLineOptions).print("%m", {});
+  t.equal(output, "{}");
+
+  p(shortLineOptions).print("%m", { a: 1 });
+  t.equal(output, "{\n  a = 1;\n}");
+
+  p(shortLineOptions).print("%m", { a: { b: 2 } });
+  t.equal(output, "{\n  a = {\n    b = 2;\n  };\n}");
+
+  t.end();
+});
+
+test("model", (t) => {
+  p(options).model(parse("start = {}"));
+  t.equal(output, "{ start = {}; }");
+
+  p(options).model(parse("start = a; a = 3"));
+  t.equal(output, "{ start = a; a = 3; }");
+
+  p(options).model(parse("start = a.b; a = { b = 3; }"));
+  t.equal(output, "{ start = a.b; a = { b = 3; }; }");
+
+  t.end();
+});
+
+test("propertyref", (t) => {
+  p(options).model(new mm.prog.PropertyReference(new mm.prog.This(), "a"));
+  t.equal(output, "this.a");
+
+  p(options).model(new mm.prog.PropertyReference(new mm.prog.This(), 3));
+  t.equal(output, "this[3]");
+
+  p(options).model(new mm.prog.PropertyReference(new mm.prog.This(), Symbol("S")));
+  t.equal(output, "this[Symbol(S)]");
+
+  t.end();
+});
+
+test("function", (t) => {
+  p(options).model(parse("f() = 3"));
+  t.equal(output, "{ f = () => 3; }");
+
+  p(options).model(parse("f(x) = x"));
+  t.equal(output, "{ f = (x) => x; }");
+
+  p(options).model(function f() { });
+  t.equal(output, "f");
+
+  p(options).model(function (a) { });
+  t.equal(output, "<anonymous-function>");
+
+  t.end();
+});
+
+test("invocation", (t) => {
+  p(options).model(parse("start = a.f(3); a = { f(x) = x; }"));
+  t.equal(output, "{ start = a.f(3); a = { f = (x) => x; }; }");
+
+  p(options).model(new mm.prog.Invocation(new mm.prog.This(), 3, [5]));
+  t.equal(output, "3(5)");
+
+  p(options).model(new mm.prog.Invocation(2, 3, [5]));
+  t.equal(output, "2::3(5)");
+
+  t.end();
+});
+
+test("closure", (t) => {
+  p(options).model(new mm.prog.Closure(3, 5));
+  t.equal(output, "3");
+
+  t.end();
+});
+
+test("annotated", (t) => {
+  p(annotOptions).model(parse("start = {}"));
+  t.equal(output, "@constructor { start = @constructor {}; }");
+
+  p(annotOptions).model(new mm.prog.Closure(3, 5));
+  t.equal(output, "@closure(3)");
+
+  t.end();
+});
+
+test("wrapper", (t) => {
+  let realm = new mm.Realm();
+
+  // don't assume a particular format here because it may vary
+  p(options).model(realm.compile("start = {}"));
+  t.ok(output);
+
+  t.end();
+});
+
+test("colors", (t) => {
+  p(colorsOptions).model("a");
+  t.ok(/\"a\"/.test(output));
 
   t.end();
 });
 
 
-test("indent 3", (t) => {
-  p(opt1).indent().text('abc').br().text('def').br().unindent().text('ghi');
-  t.equal(output, "  abc\n  def\nghi");
-
-  p(opt1).indent().text('abc').br().indent().text('def').br().unindent().text('ghi');
-  t.equal(output, "  abc\n    def\n  ghi");
-
-  p(opt1).indent().text('abc').ln().ln().text('def');
-  t.equal(output, "  abc\n\n  def");
-
-  t.end();
-});
 
 
-test("_isIdentifier", (t) => {
-  let x = p(opt1);
-  t.equal(x._isIdentifier(''), false);
-  t.equal(x._isIdentifier('.'), false);
-  t.equal(x._isIdentifier('1'), false);
-  t.equal(x._isIdentifier('1a'), false);
-  t.equal(x._isIdentifier('a-'), false);
-  t.equal(x._isIdentifier('3_'), false);
 
-  t.equal(x._isIdentifier('$'), true);
-  t.equal(x._isIdentifier('_'), true);
-  t.equal(x._isIdentifier('a'), true);
-  t.equal(x._isIdentifier('a3'), true);
-  t.equal(x._isIdentifier('ab'), true);
-  t.equal(x._isIdentifier('a$'), true);
-  t.equal(x._isIdentifier('AZaz09_$'), true);
-
-  t.end();
-});
 
 
 // Creates a printer that prints into the global string `output`.
-function p(opts) {
+function p(options) {
   output = "";
   // super-simple writable stream: http://stackoverflow.com/a/21583831
   var stm = new stream.Writable();
-  stm._write = function(chunk, encoding, done) {
+  stm._write = function (chunk, encoding, done) {
     output += chunk;
     done();
   };
-  return new Printer(stm, opts);
+  return new Printer(stm, options);
 }
 
 var output = "";
 
 
-var opt1 = {
-};
+function parse(str) {
+  return parser.parse(str).body;
+}
