@@ -94,12 +94,15 @@ test("rule", (t) => {
   t.end();
 });
 
-test("nopercent_remain", (t) => {
+test("remain", (t) => {
   p(options).print("", 1, 2);
   t.equal(output, "1 2");
 
   p(options).print("a", 1, 2);
   t.equal(output, "a 1 2");
+
+  p(options).print("%d", 1, 2);
+  t.equal(output, "1 2");
 
   t.end();
 });
@@ -138,6 +141,15 @@ test("ln", (t) => {
 
   p(options).print("a").ln().ln();
   t.equal(output, "a\n\n\n");
+
+  p(options).println();
+  t.equal(output, "\n");
+
+  p(options).println("a");
+  t.equal(output, "a\n");
+
+  p(options).println("%d %s", 1, "a", "b");
+  t.equal(output, "1 a b\n");
 
   t.end();
 });
@@ -322,14 +334,17 @@ test("short-line", (t) => {
   p(shortLineOptions).print("%m", []);
   t.equal(output, "[]");
 
+  p(shortLineOptions).print("%m", [1, 2, 3]);
+  t.equal(output, "[\n  1,\n  2,\n  3\n]");
+
   p(shortLineOptions).print("%m", {});
   t.equal(output, "{}");
 
   p(shortLineOptions).print("%m", { a: 1 });
-  t.equal(output, "{\n  a = 1;\n}");
+  t.equal(output, "{\n  a = 1\n}");
 
   p(shortLineOptions).print("%m", { a: { b: 2 } });
-  t.equal(output, "{\n  a = {\n    b = 2;\n  };\n}");
+  t.equal(output, "{\n  a = {\n    b = 2\n  }\n}");
 
   t.end();
 });
