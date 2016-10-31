@@ -90,7 +90,7 @@ Call it without arguments to print only a line break.
 
 **model(*model*)**
 
-Prints a program model.
+Prints a metamaya program model.
 
 
 ## Printing line breaks and rules
