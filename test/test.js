@@ -6,9 +6,12 @@ const parser = require("metamaya/lib/parser");
 const stream = require('stream');
 const test = require("tape");
 
-let options = {};
+let options = {
+  colors: false,
+};
 
 let annotOptions = {
+  colors: false,
   annotate: true
 };
 
@@ -17,6 +20,7 @@ let colorsOptions = {
 };
 
 let shortLineOptions = {
+  colors: false,
   breakLimit: 0,
   indentSize: 2
 };
