@@ -9,7 +9,7 @@ const test = require("tape");
 let options = {};
 
 let annotOptions = {
-  annotated: true
+  annotate: true
 };
 
 let colorsOptions = {
@@ -17,7 +17,7 @@ let colorsOptions = {
 };
 
 let shortLineOptions = {
-  breakLength: 0,
+  breakLimit: 0,
   indentSize: 2
 };
 
@@ -83,13 +83,13 @@ test("linebreak", (t) => {
 
 test("rule", (t) => {
   let prt = p(options).rule();
-  t.equal(output, '-'.repeat(prt.options.breakLength) + "\n");
+  t.equal(output, '-'.repeat(prt.options.breakLimit) + "\n");
 
   p(shortLineOptions).rule();
   t.equal(output, '-'.repeat(8) + "\n");
 
   prt = p(options).print("...").rule();
-  t.equal(output, "..." + '-'.repeat(prt.options.breakLength - 3) + "\n");
+  t.equal(output, "..." + '-'.repeat(prt.options.breakLimit - 3) + "\n");
 
   t.end();
 });
@@ -123,25 +123,7 @@ test("br", (t) => {
   t.end();
 });
 
-test("ln", (t) => {
-  p(options).ln();
-  t.equal(output, "\n");
-
-  p(options).print("").ln();
-  t.equal(output, "\n");
-
-  p(options).print("").ln("x");
-  t.equal(output, "x\n");
-
-  p(options).print("a").ln();
-  t.equal(output, "a\n\n");
-
-  p(options).print("a").ln("x");
-  t.equal(output, "a\nx\n");
-
-  p(options).print("a").ln().ln();
-  t.equal(output, "a\n\n\n");
-
+test("println", (t) => {
   p(options).println();
   t.equal(output, "\n");
 
@@ -150,22 +132,6 @@ test("ln", (t) => {
 
   p(options).println("%d %s", 1, "a", "b");
   t.equal(output, "1 a b\n");
-
-  t.end();
-});
-
-test("brln", (t) => {
-  p(options).br().ln();
-  t.equal(output, "\n");
-
-  p(options).ln().br();
-  t.equal(output, "\n");
-
-  p(options).br().ln().br();
-  t.equal(output, "\n");
-
-  p(options).print("").br().ln();
-  t.equal(output, "\n");
 
   t.end();
 });
