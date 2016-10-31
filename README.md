@@ -1,14 +1,18 @@
 # Metamaya printer
 
-The module exports the `Printer` class that outputs formatted text to
-any writable stream.
-It has specialized methods for printing text, numbers and line breaks and
-indented blocks.
+Pretty printer for [metamaya](https://www.npmjs.com/package/metamaya)
+program models.
+It is useful when debugging metamaya programs.
 
-The printer is customized for pretty-printing metamaya program models.
+The module exports the `Printer` class that prints text to
+any writable stream. The `print()` method accepts format strings similar to
+`console.log()`.
+The module also exports two predefined printer objects, both directed to
+`process.stdout`.
 
-The module also exports a ready-to-use `printer` object that is directed
-to `process.stdout`.
+- `printer` - for canonical output (one element/line)
+- `logger` - for space efficient output.
+
 
 
 # Installation
@@ -23,13 +27,13 @@ npm install metamaya-printer
 var mm = require('metamaya')
 var printer = require('metamaya-printer').printer
 var example = mm.compile('f(x) = x * x; a = f(5)')
-printer.text("model: ").model(example).br()
-printer.text("a = ").model(example.get('a').value()).br()
+printer.println("model: %m", example)
+printer.println("a = %m", example.get('a').value())
 ~~~
 Output:
 ~~~
 model: {
-  body = @constructor {
+  body = {
     f = (x) => mul(x, x)
     a = f(5)
   }
@@ -43,133 +47,79 @@ a = 25
 
 ~~~js
 var Printer = require('mm-model-printer').Printer
-var opts = {
-    indentPattern: '\t', // using tabs for indentation
-    colors: true,        //
-    raw: false,          // program models are printed like source code
-}
-var p = new Printer(process.stdout, opts)
+var p = new Printer(process.stdout, {
+    breakLimit: 0,  // print only one elements per line
+    annotate: true  // annotate program models to provide more insight
+})
 ~~~
 
-## Printing text
+List of available options:
 
-All printing methods return the printer object, so they are chainable.
+- `indentSize` - Number of spaces used per indentation level. Defaults to 2.
+- `lineBreak` - The string used to print line breaks. Defaults to `\n`.
+- `raw` - Print program models as raw objects. Defaults to false.
+- `colors` - Use colors when printing models. Defaults to true.
+- `annotate` - Annotate program models. Defaults to false.
+- `breakLimit` - Number of characters before breaking a line. Defaults to 78.
 
-**text(*str*)**
+Note that an actual line can be longer than `breakLimit`.
+To get nicely formatted output, provide 0 as break limit.
 
-Prints unformatted text.
+## Printing formatted output
 
-**format(*format, ...args*)**
+**print(*fmt, ...*)**
 
-Prints formatted text in *printf* style. The arguments are straightforwardly
-passed to `util.format()`.
+Prints all of its arguments similarly to `console.log()`.
+If the first argument is a string, it is treated as a *format string*.
+In the format string you can use the following *placeholders*:
+
+- `%d` - prints a number (integer or floating point)
+- `%s` - prints a string
+- `%m` - prints a metamaya program model
+
+Each placeholder consumes a single argument.
+All remaining arguments are printed sequentially using a space separator.
+
+Circular references are detected and indicated in the output.
 
 
-## Printing program models
+**println(*fmt, ...*)**
 
-If the `raw` option is not set (the default), program models are printed with
-metamaya syntax, although the output doesn't necessarily compile.
-If the `raw` option is set, program models are printed using Javascript
-object syntax. Only enumerable properties are printed.
+The same as `print()` but prints a line break after printing its arguments.
+Call it without arguments to print only a line break.
 
-**model(*obj*)**
+**model(*model*)**
 
-Prints an arbitrary program model in full depth.
+Prints a program model.
 
-**object(*obj*)**
 
-Prints an object using metamaya syntax.
-The object can be either a metamaya object or a plain old Javascript object.
-
-**array(*obj*)**
-
-Prints an array.
-
-**keyword(*word*)**)
-
-Prints a keyword or other reserved word.
-
-**propertyDef(*key, value*)**
-
-Prints a key-value pair.
-
-**keyDef(*key*)**
-
-Prints a freshly defined key.
-
-**keyRef(*key*)**
-
-Prints a key reference.
-
-**number(*num*)**
-
-Prints a number.
-
-## Line breaks and rules
+## Printing line breaks and rules
 
 **br()**
 
 Prints a soft line break.
-Consequent calls to `br` will print a single line break.
+Consequent calls to `br()` yield a single line break.
 
-**ln(*[str], [indent]*)**
+**rule(*[chr]*)**
 
-Prints a standalone line with optional text.
-Indentation is respected only if `indent` is true.
-
-**rule(*[len], [pattern], [indent]*)**
-
-Prints a horizontal rule in a separate line.
-If all arguments are omitted, exactly 78 hyphens are printed.
+Prints a horizontal rule into a separate line.
+You can specify a custom character to build up the rule,
+otherwise `-` is used.
 
 
-## Blocks and indentation
+## Method chaining
 
-The printer supports automatic indentation.
-Each new line is indented according the current indentation depth.
-
-**indent()**
-
-Increases indentation depth.
-Indentation takes effect just before the first character is printed
-in the current line. Empty lines are not indented.
-
-**unindent()**
-
-Decreases indentation depth.
-
-**open(*symbol*)**
-
-Opens a new block with delimiter `symbol`. Increases indentation depth.
-
-**close(*symbol*)**
-
-Closes the current new block with delimiter `symbol`. Decreases indentation depth.
-
-~~~js
-printer.open('{')
-printer.propertyDef('foo', 1);
-printer.propertyDef('bar', 2);
-printer.close('}')
-~~~
-Outputs:
-~~~
-{
-    foo = 1
-    bar = 2
-}
-~~~
-
+All of the above methods return the printer object,
+so method calls can be chained.
 
 
 # Documentation
 
-If you need detailed API documentation, you can generate it yourself.
-Just execute the following commands then open
-`doc/metamaya-printer/<version>/index.html` in a browser.
+The package supports **jsdoc**. To generate API documentation,
+execute the following commands in the package directory.
 ~~~
-cd path/to/metamaya-printer
 npm install
 npm run doc
 ~~~
-
+When you're done, open
+`doc/metamaya-printer/<version>/index.html` in your browser.
