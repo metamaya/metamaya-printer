@@ -5,5 +5,5 @@ typings/
 node_modules/
 obj/
 bin/
-.log
-.njsproj
+*.log
+*.njsproj
