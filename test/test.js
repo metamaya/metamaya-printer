@@ -90,7 +90,7 @@ test("rule", (t) => {
   t.equal(output, '-'.repeat(prt.options.breakLimit) + "\n");
 
   p(shortLineOptions).rule();
-  t.equal(output, '-'.repeat(8) + "\n");
+  t.equal(output, '-'.repeat(16) + "\n");
 
   prt = p(options).print("...").rule();
   t.equal(output, "..." + '-'.repeat(prt.options.breakLimit - 3) + "\n");
