@@ -333,13 +333,13 @@ test("model", (t) => {
 });
 
 test("propertyref", (t) => {
-  p(options).model(new mm.prog.PropertyReference(new mm.prog.This(), "a"));
+  p(options).model(new mm.model.PropertyReference(new mm.model.This(), "a"));
   t.equal(output, "this.a");
 
-  p(options).model(new mm.prog.PropertyReference(new mm.prog.This(), 3));
+  p(options).model(new mm.model.PropertyReference(new mm.model.This(), 3));
   t.equal(output, "this[3]");
 
-  p(options).model(new mm.prog.PropertyReference(new mm.prog.This(), Symbol("S")));
+  p(options).model(new mm.model.PropertyReference(new mm.model.This(), Symbol("S")));
   t.equal(output, "this[Symbol(S)]");
 
   t.end();
@@ -365,17 +365,17 @@ test("invocation", (t) => {
   p(options).model(parse("start = a.f(3); a = { f(x) = x; }"));
   t.equal(output, "{ start = a.f(3); a = { f = (x) => x; }; }");
 
-  p(options).model(new mm.prog.Invocation(new mm.prog.This(), 3, [5]));
+  p(options).model(new mm.model.Invocation(new mm.model.This(), 3, [5]));
   t.equal(output, "3(5)");
 
-  p(options).model(new mm.prog.Invocation(2, 3, [5]));
+  p(options).model(new mm.model.Invocation(2, 3, [5]));
   t.equal(output, "2::3(5)");
 
   t.end();
 });
 
 test("closure", (t) => {
-  p(options).model(new mm.prog.Closure(3, 5));
+  p(options).model(new mm.model.Closure(3, 5));
   t.equal(output, "3");
 
   t.end();
@@ -383,19 +383,19 @@ test("closure", (t) => {
 
 test("annotated", (t) => {
   p(annotOptions).model(parse("start = {}"));
-  t.equal(output, "@constructor { start = @constructor {}; }");
+  t.equal(output, "@ctor{ start = @ctor{}; }");
 
-  p(annotOptions).model(new mm.prog.Closure(3, 5));
+  p(annotOptions).model(new mm.model.Closure(3, 5));
   t.equal(output, "@closure(3)");
 
   t.end();
 });
 
 test("wrapper", (t) => {
-  let realm = new mm.Realm();
+  let context = new mm.Context();
 
   // don't assume a particular format here because it may vary
-  p(options).model(realm.compile("start = {}"));
+  p(options).model(context.compile("start = {}"));
   t.ok(output);
 
   t.end();
